@@ -1,4 +1,4 @@
-정package com.example.SpringSecurityJwt.global.config;
+package com.example.SpringSecurityJwt.global.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
