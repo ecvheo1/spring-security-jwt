@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    database: h2
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show-sql: true
+        format-sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+jwt:
+  header: Authorization
+  issuer: jeff
+  client-secret: hello
+  expiry-seconds: 604800000
