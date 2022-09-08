@@ -25,5 +25,6 @@ public class AccessDeniedHandlerImpl implements AccessDeniedHandler {
     response.setCharacterEncoding("UTF-8");
     new ObjectMapper().writeValue(response.getWriter(),
                                   new ErrorResponse(HttpStatus.FORBIDDEN.value(),
-                                                    exception.getMessage()));  }
+                                                    exception.getMessage()));
+  }
 }
