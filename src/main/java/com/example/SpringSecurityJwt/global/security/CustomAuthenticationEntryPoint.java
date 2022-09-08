@@ -5,8 +5,12 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+
+import com.example.SpringSecurityJwt.global.dto.ErrorResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 인증되지 않은 사용자의 요청을 처리
@@ -15,11 +19,15 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 	@Override
-	public void commence(HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse,
-		AuthenticationException e) throws IOException {
-		System.out.println(e.getClass().getName());
-		httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getLocalizedMessage());
+	public void commence(HttpServletRequest request, HttpServletResponse response,
+		AuthenticationException exception) throws IOException {
+		String exceptionMsg = (String)request.getAttribute("exception");
+
+		response.setStatus(HttpStatus.UNAUTHORIZED.value());
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		new ObjectMapper().writeValue(response.getWriter(),
+																	new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), exceptionMsg));
 	}
 }
 
