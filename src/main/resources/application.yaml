@@ -1,4 +1,6 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
   jpa:
     database: h2
     open-in-view: false
@@ -14,3 +16,6 @@ jwt:
   issuer: jeff
   client-secret: hello
   expiry-seconds: 604800000
+redis:
+  host: localhost
+  port: 6379
