@@ -4,7 +4,7 @@ package com.example.SpringSecurityJwt.domain.user.dto;
 public class AuthResponse {
 	private String accessToken;
 	private String refreshToken;
-	private String tokenType = "Bearer";
+	private String grantType = "Bearer";
 
 	public AuthResponse(String accessToken, String refreshToken) {
 		this.accessToken = accessToken;
@@ -19,7 +19,7 @@ public class AuthResponse {
 		return refreshToken;
 	}
 
-	public String getTokenType() {
-		return tokenType;
+	public String getGrantType() {
+		return grantType;
 	}
 }

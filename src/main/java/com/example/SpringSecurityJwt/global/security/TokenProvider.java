@@ -26,17 +26,15 @@ public class TokenProvider {
   private final JwtConfig jwtConfig;
   private final RedisService redisService;
 
-  public String createAccessToken(Authentication authentication) {
-    UserPrincipal userPrincipal = (UserPrincipal)authentication.getPrincipal();
+  public String createAccessToken(String username) {
     int expirySeconds = jwtConfig.getExpirySeconds();
-    return createToken(userPrincipal.getUsername(), expirySeconds);
+    return createToken(username, expirySeconds);
   }
 
-  public String createRefreshToken(Authentication authentication) {
-    UserPrincipal userPrincipal = (UserPrincipal)authentication.getPrincipal();
+  public String createRefreshToken(String username) {
     int expirySeconds = jwtConfig.getExpirySeconds() * 48 * 14;
-    String refreshToken = createToken(userPrincipal.getUsername(), expirySeconds);
-    redisService.setValues(userPrincipal.getUsername(), refreshToken, Duration.ofMillis(expirySeconds));
+    String refreshToken = createToken(username, expirySeconds);
+    redisService.setValues(username, refreshToken, Duration.ofMillis(expirySeconds));
     return refreshToken;
   }
 
@@ -61,9 +59,9 @@ public class TokenProvider {
     return claims.getSubject();
   }
 
-  public boolean validateToken(HttpServletRequest request, String authToken) {
+  public boolean validateAccessToken(HttpServletRequest request, String token) {
     try {
-      Jwts.parser().setSigningKey(jwtConfig.getClientSecret()).parseClaimsJws(authToken);
+      Jwts.parser().setSigningKey(jwtConfig.getClientSecret()).parseClaimsJws(token);
       return true;
     } catch (SignatureException ex) {
       request.setAttribute("exception", "Invalid JWT signature");
@@ -78,5 +76,12 @@ public class TokenProvider {
     }
 
     return false;
+  }
+
+  public void checkRefreshToken(String username, String refreshToken) {
+    String redisRefreshToken = redisService.getValues(username);
+    if (!redisRefreshToken.equals(refreshToken)) {
+      throw new IllegalArgumentException("Invalid Refresh token");
+    }
   }
 }

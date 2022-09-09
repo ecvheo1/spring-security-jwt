@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.SpringSecurityJwt.domain.user.dto.AuthResponse;
+import com.example.SpringSecurityJwt.domain.user.dto.ReIssueRequest;
 import com.example.SpringSecurityJwt.domain.user.dto.SignUpRequest;
 import com.example.SpringSecurityJwt.domain.user.service.UserService;
 
@@ -25,6 +27,11 @@ public class UserController {
   public void registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
     signUpRequest.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
     userService.register(signUpRequest);
+  }
+
+  @PostMapping("/re-issue")
+  public AuthResponse reIssue(@Valid @RequestBody ReIssueRequest reIssueRequest) {
+    return userService.reIssue(reIssueRequest);
   }
 
   @GetMapping("/test")

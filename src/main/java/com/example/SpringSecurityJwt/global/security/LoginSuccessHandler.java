@@ -20,12 +20,13 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException {
+		UserPrincipal userPrincipal = (UserPrincipal)authentication.getPrincipal();
+
 		response.setStatus(HttpStatus.OK.value());
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		new ObjectMapper().writeValue(response.getWriter(),
-																	new AuthResponse(tokenProvider.createAccessToken(authentication),
-																									 tokenProvider.createRefreshToken(
-																											 authentication)));
+		new ObjectMapper().writeValue(response.getWriter(), new AuthResponse(
+				tokenProvider.createAccessToken(userPrincipal.getUsername()),
+				tokenProvider.createRefreshToken(userPrincipal.getUsername())));
 	}
 }
