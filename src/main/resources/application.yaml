@@ -15,7 +15,7 @@ jwt:
   header: Authorization
   issuer: jeff
   client-secret: hello
-  expiry-seconds: 604800000
+  expiry-seconds: 1800000
 redis:
   host: localhost
   port: 6379
