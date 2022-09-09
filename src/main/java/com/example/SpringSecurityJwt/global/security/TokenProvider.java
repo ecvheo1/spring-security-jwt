@@ -1,5 +1,6 @@
 package com.example.SpringSecurityJwt.global.security;
 
+import java.time.Duration;
 import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.example.SpringSecurityJwt.global.config.JwtConfig;
+import com.example.SpringSecurityJwt.global.redis.RedisService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -16,23 +18,34 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class TokenProvider {
-  private JwtConfig jwtConfig;
+  private final JwtConfig jwtConfig;
+  private final RedisService redisService;
 
-  public TokenProvider(JwtConfig jwtConfig) {
-    this.jwtConfig = jwtConfig;
+  public String createAccessToken(Authentication authentication) {
+    UserPrincipal userPrincipal = (UserPrincipal)authentication.getPrincipal();
+    int expirySeconds = jwtConfig.getExpirySeconds();
+    return createToken(userPrincipal.getUsername(), expirySeconds);
   }
 
-  public String createToken(Authentication authentication) {
+  public String createRefreshToken(Authentication authentication) {
     UserPrincipal userPrincipal = (UserPrincipal)authentication.getPrincipal();
+    int expirySeconds = jwtConfig.getExpirySeconds() * 48 * 14;
+    String refreshToken = createToken(userPrincipal.getUsername(), expirySeconds);
+    redisService.setValues(userPrincipal.getUsername(), refreshToken, Duration.ofMillis(expirySeconds));
+    return refreshToken;
+  }
 
+  private String createToken(String username, int expirySeconds) {
     Date now = new Date();
-    Date expiryDate = new Date(now.getTime() + jwtConfig.getExpirySeconds());
+    Date expiryDate = new Date(now.getTime() + expirySeconds);
 
     return Jwts.builder()
-               .setSubject(userPrincipal.getUsername())
+               .setSubject(username)
                .setIssuedAt(new Date())
                .setExpiration(expiryDate)
                .signWith(SignatureAlgorithm.HS512, jwtConfig.getClientSecret())
