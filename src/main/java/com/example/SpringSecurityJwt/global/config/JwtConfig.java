@@ -10,12 +10,15 @@ public class JwtConfig {
   private final String issuer;
   private final String clientSecret;
   private final int expirySeconds;
+  private final String blacklistPrefix;
 
-  public JwtConfig(String header, String issuer, String clientSecret, int expirySeconds) {
+  public JwtConfig(String header, String issuer, String clientSecret, int expirySeconds,
+                   String blacklistPrefix) {
     this.header = header;
     this.issuer = issuer;
     this.clientSecret = clientSecret;
     this.expirySeconds = expirySeconds;
+    this.blacklistPrefix = blacklistPrefix;
   }
 
   public String getHeader() {
@@ -32,5 +35,9 @@ public class JwtConfig {
 
   public int getExpirySeconds() {
     return expirySeconds;
+  }
+
+  public String getBlacklistPrefix() {
+    return blacklistPrefix;
   }
 }

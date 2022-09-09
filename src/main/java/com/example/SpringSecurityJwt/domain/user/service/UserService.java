@@ -1,5 +1,7 @@
 package com.example.SpringSecurityJwt.domain.user.service;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +34,7 @@ public class UserService {
                     .email(signUpRequest.getEmail())
                     .name(signUpRequest.getName())
                     .password(signUpRequest.getPassword())
-                    .role(Role.ROLE_ADMIN)
+                    .role(Role.ROLE_USER)
                     .build();
 
     userRepository.save(user);
@@ -48,5 +50,9 @@ public class UserService {
 
     return new AuthResponse(tokenProvider.createAccessToken(email),
                             tokenProvider.createRefreshToken(email));
+  }
+
+  public void logout(HttpServletRequest request, User user) {
+    tokenProvider.logout(request, user.getEmail());
   }
 }

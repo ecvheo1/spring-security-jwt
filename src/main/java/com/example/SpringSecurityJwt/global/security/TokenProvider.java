@@ -5,7 +5,6 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.example.SpringSecurityJwt.global.config.JwtConfig;
@@ -50,6 +49,23 @@ public class TokenProvider {
                .compact();
   }
 
+  public void logout(HttpServletRequest request, String username) {
+    String token = request.getHeader("Authorization").substring(7);
+    long expiredAccessTokenTime = getExpiredTime(token).getTime() - new Date().getTime();
+    redisService.setValues(jwtConfig.getBlacklistPrefix() + token, username,
+                           Duration.ofMillis(expiredAccessTokenTime));
+    redisService.deleteValues(username);
+  }
+
+  private Date getExpiredTime(String token) {
+    Claims claims = Jwts.parser()
+                      .setSigningKey(jwtConfig.getClientSecret())
+                      .parseClaimsJws(token)
+                      .getBody();
+
+    return claims.getExpiration();
+  }
+
   public String getUserEmailFromToken(String token) {
     Claims claims = Jwts.parser()
                         .setSigningKey(jwtConfig.getClientSecret())
@@ -61,6 +77,11 @@ public class TokenProvider {
 
   public boolean validateAccessToken(HttpServletRequest request, String token) {
     try {
+      String expiredAccessToken = redisService.getValues(jwtConfig.getBlacklistPrefix() + token);
+      if (expiredAccessToken != null) {
+        throw new ExpiredJwtException(null, null, null);
+      }
+
       Jwts.parser().setSigningKey(jwtConfig.getClientSecret()).parseClaimsJws(token);
       return true;
     } catch (SignatureException ex) {
